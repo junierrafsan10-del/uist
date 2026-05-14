@@ -31,14 +31,12 @@ export default function PrincipalMessage() {
               transition: 'all 800ms ease-out',
             }}
           >
-            <div
-              className="w-[200px] h-[200px] rounded-full flex items-center justify-center shrink-0"
-              style={{ border: '4px solid #F57C00' }}
-            >
-              <svg className="w-24 h-24 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-              </svg>
-            </div>
+<img
+            src="/principal.jpeg"
+            alt="Principal"
+            className="w-[200px] h-[200px] rounded-full object-cover shrink-0"
+            style={{ border: '4px solid #F57C00' }}
+          />
           </div>
 
           {/* Right: Text */}
