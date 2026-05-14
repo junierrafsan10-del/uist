@@ -1,12 +1,12 @@
 const items = [
-  { label: 'Lab Session', gradient: 'linear-gradient(135deg, #00838F, #00ACC1)' },
-  { label: 'Graduation Day', gradient: 'linear-gradient(135deg, #F57C00, #FF9800)' },
-  { label: 'Industrial Visit', gradient: 'linear-gradient(135deg, #004D55, #00838F)' },
-  { label: 'Sports Day', gradient: 'linear-gradient(135deg, #E53935, #FF7043)' },
-  { label: 'Cultural Program', gradient: 'linear-gradient(135deg, #F57C00, #E53935)' },
-  { label: 'Workshop', gradient: 'linear-gradient(135deg, #00ACC1, #4DD0E1)' },
-  { label: 'Class Activity', gradient: 'linear-gradient(135deg, #43A047, #66BB6A)' },
-  { label: 'Award Ceremony', gradient: 'linear-gradient(135deg, #F57C00, #FFC107)' },
+  { label: 'Lab Session', img: '/campus1.jpg' },
+  { label: 'Graduation Day', img: '/campus2.jpg' },
+  { label: 'Industrial Visit', img: '/campus3.jpg' },
+  { label: 'Sports Day', img: '/campus4.jpg' },
+  { label: 'Cultural Program', img: '/campus5.jpg' },
+  { label: 'Lab Session', img: '/campus1.jpg' },
+  { label: 'Graduation Day', img: '/campus2.jpg' },
+  { label: 'Industrial Visit', img: '/campus3.jpg' },
 ]
 
 export default function GalleryStrip() {
@@ -24,12 +24,10 @@ export default function GalleryStrip() {
             <div
               key={i}
               className="gallery-card"
-              style={{ background: item.gradient }}
+              style={{ background: `url(${item.img}) center/cover no-repeat` }}
             >
-              <svg className="w-10 h-10 text-white/60 mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
-                <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909M3.75 21h16.5A2.25 2.25 0 0022.5 18.75V5.25A2.25 2.25 0 0020.25 3H3.75A2.25 2.25 0 001.5 5.25v13.5A2.25 2.25 0 003.75 21z" />
-              </svg>
-              <span className="text-white text-sm font-semibold">{item.label}</span>
+              <div className="gallery-card-overlay" />
+              <span className="gallery-card-label">{item.label}</span>
             </div>
           ))}
         </div>

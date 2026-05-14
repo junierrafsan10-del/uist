@@ -139,11 +139,29 @@ html { scroll-behavior: smooth; }
   justify-content: center;
   flex-shrink: 0;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
 .gallery-card:hover {
   transform: scale(1.05);
   box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+
+.gallery-card-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  border-radius: 12px;
+}
+
+.gallery-card-label {
+  position: relative;
+  z-index: 10;
+  color: white;
+  font-size: 14px;
+  font-weight: 600;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
 }
 
 @media (max-width: 768px) {
