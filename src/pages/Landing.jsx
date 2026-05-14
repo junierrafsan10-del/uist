@@ -13,12 +13,12 @@ import HeroSection from '../components/HeroSection'
 import ucepLogo from '../assets/UCEP-logo.png'
 
 const courses = [
-  { name: 'Civil Technology', dept: 'Civil' },
-  { name: 'Mechanical Engineering', dept: 'Mechanical' },
-  { name: 'Electrical Engineering', dept: 'Electrical' },
-  { name: 'Textile Engineering', dept: 'Textile' },
-  { name: 'Computer Science and Technology', dept: 'CST' },
-  { name: 'Automobile Engineering', dept: 'Auto' },
+  { name: 'Civil Technology', dept: 'Civil', img: '/civil.jpeg' },
+  { name: 'Mechanical Engineering', dept: 'Mechanical', img: '/mechanical.jpeg' },
+  { name: 'Electrical Engineering', dept: 'Electrical', img: '/electrical.jpeg' },
+  { name: 'Textile Engineering', dept: 'Textile', img: '/textile.jpeg' },
+  { name: 'Computer Science and Technology', dept: 'CST', img: '/computer-science.jpeg' },
+  { name: 'Automobile Engineering', dept: 'Auto', img: '/automobile.jpeg' },
 ]
 
 const navLinks = [
@@ -58,10 +58,8 @@ function CourseCard({ course, index }) {
       className={`course-card-3d rounded-xl overflow-hidden bg-white shadow-lg ${visible ? 'visible' : ''}`}
       style={{ transitionDelay: visible ? `${index * 0.06}s` : '0s' }}
     >
-      <div className="h-[180px] bg-gray-200 flex items-center justify-center overflow-hidden">
-        <svg className="w-16 h-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1}>
-          <path strokeLinecap="round" strokeLinejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
-        </svg>
+      <div className="h-[180px] flex items-center justify-center overflow-hidden">
+        <img src={course.img} alt={course.name} className="w-full h-full object-cover" />
       </div>
       <div className="flex items-center justify-center" style={{ height: '120px' }}>
         <h3 className="text-ucep-orange font-bold text-lg text-center px-4">{course.name}</h3>
