@@ -70,6 +70,7 @@ export default function TeacherDashboard() {
         supabase.from('students').select('*'),
         supabase.from('notices').select('*').order('created_at', { ascending: false }).limit(5),
       ])
+      if (studentsRes.error) throw studentsRes.error
       setTeacherData(teacherRes.data)
       setStudents((studentsRes.data || []).map(s => ({ ...s, student_id: s.id })))
       setCourses(['Civil Technology', 'Mechanical Engineering', 'Electrical Engineering', 'Computer Science and Technology', 'Textile Engineering', 'Automobile Engineering'])
@@ -99,13 +100,14 @@ export default function TeacherDashboard() {
     }
     try {
       if (isSupabaseConnected) {
-        await supabase.from('notices').insert({
+        const { error } = await supabase.from('notices').insert({
           title: noticeForm.title,
           body: noticeForm.content,
           category: noticeForm.category,
           date: new Date().toISOString().split('T')[0],
           is_published: false,
         })
+        if (error) throw error
       }
       addToast('Notice posted for approval!', 'success')
       setNoticeForm({ title: '', category: 'Academic', content: '' })
@@ -123,7 +125,7 @@ export default function TeacherDashboard() {
     }
     try {
       if (isSupabaseConnected) {
-        await supabase.from('results').insert({
+        const { error } = await supabase.from('results').insert({
           student_id: resultForm.student_id,
           course: resultForm.course,
           exam_type: resultForm.exam_type,
@@ -131,6 +133,7 @@ export default function TeacherDashboard() {
           total: parseFloat(resultForm.total),
           year: '2025',
         })
+        if (error) throw error
       }
       addToast('Result added!', 'success')
       setResultForm({ student_id: '', course: '', exam_type: 'midterm', marks: '', total: '100' })
@@ -262,7 +265,8 @@ export default function TeacherDashboard() {
                         date: selectedDate,
                         status: attendanceData[`${selectedCourse}-${selectedDate}`]?.[s.student_id] || 'present',
                       }))
-                      await supabase.from('attendance').upsert(records, { onConflict: 'student_id,course,date' })
+                      const { error } = await supabase.from('attendance').upsert(records, { onConflict: 'student_id,course,date' })
+                      if (error) throw error
                     } catch { addToast('Failed to submit attendance', 'error'); return }
                   }
                   addToast('Attendance submitted!', 'success')

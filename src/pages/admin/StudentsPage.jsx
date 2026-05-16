@@ -61,6 +61,7 @@ export default function StudentsPage() {
         const [studentsRes] = await Promise.all([
           supabase.from('students').select('*'),
         ])
+        if (studentsRes.error) throw studentsRes.error
         setStudents((studentsRes.data || []).map(s => ({ ...s, student_id: s.id })))
         setCourses(['Civil Technology', 'Mechanical Engineering', 'Electrical Engineering', 'Computer Science and Technology', 'Textile Engineering', 'Automobile Engineering'])
       }
@@ -133,7 +134,7 @@ export default function StudentsPage() {
         return
       }
       if (isSupabaseConnected) {
-        await supabase.from('students').insert({
+        const { error } = await supabase.from('students').insert({
           id: studentForm.student_id,
           name: studentForm.name,
           email: studentForm.email,
@@ -142,6 +143,7 @@ export default function StudentsPage() {
           batch: studentForm.batch,
           status: studentForm.status,
         })
+        if (error) throw error
       } else {
         setStudents(prev => [...prev, { ...studentForm }])
       }
@@ -157,7 +159,7 @@ export default function StudentsPage() {
   const handleEditStudent = async () => {
     try {
       if (isSupabaseConnected) {
-        await supabase.from('students').update({
+        const { error } = await supabase.from('students').update({
           name: studentForm.name,
           email: studentForm.email,
           phone: studentForm.phone,
@@ -165,6 +167,7 @@ export default function StudentsPage() {
           batch: studentForm.batch,
           status: studentForm.status,
         }).eq('id', studentForm.student_id)
+        if (error) throw error
       } else {
         setStudents(prev => prev.map(s => s.student_id === studentForm.student_id ? { ...studentForm } : s))
       }
@@ -183,7 +186,8 @@ export default function StudentsPage() {
     }
     try {
       if (isSupabaseConnected) {
-        await supabase.from('students').delete().eq('id', selectedStudent.student_id)
+        const { error } = await supabase.from('students').delete().eq('id', selectedStudent.student_id)
+        if (error) throw error
       } else {
         setStudents(prev => prev.filter(s => s.student_id !== selectedStudent.student_id))
       }
