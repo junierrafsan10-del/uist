@@ -45,6 +45,20 @@ export default function StudentsPage() {
     fetchData()
   }, [])
 
+  const STORAGE_KEY = 'uist_students'
+
+  const getLocalStudents = () => {
+    try {
+      const stored = localStorage.getItem(STORAGE_KEY)
+      if (stored) return JSON.parse(stored)
+    } catch {}
+    return null
+  }
+
+  const saveLocalStudents = (data) => {
+    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)) } catch {}
+  }
+
   const fetchData = async () => {
     setLoading(true)
     try {
@@ -59,7 +73,7 @@ export default function StudentsPage() {
         setCourses(['Civil Technology', 'Mechanical Engineering', 'Electrical Engineering', 'Computer Science and Technology', 'Textile Engineering', 'Automobile Engineering'])
       }
     } catch (error) {
-      console.warn('Supabase unavailable, using mock data:', error)
+      console.warn('Supabase unavailable, using local data:', error)
       loadMockData()
     } finally {
       setLoading(false)
@@ -67,13 +81,20 @@ export default function StudentsPage() {
   }
 
   const loadMockData = () => {
-    setStudents([
-      { student_id: 'ST-001', name: 'Arif Hossain', email: 'arif@ucep.edu', phone: '01711111111', course: 'Civil Technology', batch: '2024', status: 'active' },
-      { student_id: 'ST-002', name: 'Fatima Begum', email: 'fatima@ucep.edu', phone: '01711111112', course: 'Electrical Engineering', batch: '2024', status: 'active' },
-      { student_id: 'ST-003', name: 'Tanvir Ahmed', email: 'tanvir@ucep.edu', phone: '01711111113', course: 'Computer Science', batch: '2023', status: 'active' },
-      { student_id: 'ST-004', name: 'Nusrat Jahan', email: 'nusrat@ucep.edu', phone: '01711111114', course: 'Civil Technology', batch: '2023', status: 'graduated' },
-      { student_id: 'ST-005', name: 'Mahbub Karim', email: 'mahbub@ucep.edu', phone: '01711111115', course: 'Mechanical Engineering', batch: '2024', status: 'active' },
-    ])
+    const local = getLocalStudents()
+    if (local && local.length > 0) {
+      setStudents(local)
+    } else {
+      const defaults = [
+        { student_id: 'ST-001', name: 'Arif Hossain', email: 'arif@ucep.edu', phone: '01711111111', course: 'Civil Technology', batch: '2024', status: 'active' },
+        { student_id: 'ST-002', name: 'Fatima Begum', email: 'fatima@ucep.edu', phone: '01711111112', course: 'Electrical Engineering', batch: '2024', status: 'active' },
+        { student_id: 'ST-003', name: 'Tanvir Ahmed', email: 'tanvir@ucep.edu', phone: '01711111113', course: 'Computer Science', batch: '2023', status: 'active' },
+        { student_id: 'ST-004', name: 'Nusrat Jahan', email: 'nusrat@ucep.edu', phone: '01711111114', course: 'Civil Technology', batch: '2023', status: 'graduated' },
+        { student_id: 'ST-005', name: 'Mahbub Karim', email: 'mahbub@ucep.edu', phone: '01711111115', course: 'Mechanical Engineering', batch: '2024', status: 'active' },
+      ]
+      setStudents(defaults)
+      saveLocalStudents(defaults)
+    }
     setCourses(['Civil Technology', 'Electrical Engineering', 'Computer Science', 'Mechanical Engineering', 'Textile Engineering', 'Automobile Engineering'])
   }
 
@@ -152,7 +173,11 @@ export default function StudentsPage() {
         if (!error) saved = true
       }
       if (!saved) {
-        setStudents(prev => [...prev, { ...studentForm }])
+        setStudents(prev => {
+          const updated = [...prev, { ...studentForm }]
+          saveLocalStudents(updated)
+          return updated
+        })
       }
       addToast('Student added successfully!', 'success')
       setShowAddModal(false)
@@ -177,7 +202,11 @@ export default function StudentsPage() {
         if (!error) saved = true
       }
       if (!saved) {
-        setStudents(prev => prev.map(s => s.student_id === studentForm.student_id ? { ...studentForm } : s))
+        setStudents(prev => {
+          const updated = prev.map(s => s.student_id === studentForm.student_id ? { ...studentForm } : s)
+          saveLocalStudents(updated)
+          return updated
+        })
       }
       addToast('Student updated successfully!', 'success')
       setShowEditModal(false)
@@ -198,7 +227,11 @@ export default function StudentsPage() {
         if (!error) deleted = true
       }
       if (!deleted) {
-        setStudents(prev => prev.filter(s => s.student_id !== selectedStudent.student_id))
+        setStudents(prev => {
+          const updated = prev.filter(s => s.student_id !== selectedStudent.student_id)
+          saveLocalStudents(updated)
+          return updated
+        })
       }
       addToast('Student deleted!', 'success')
       setShowDeleteModal(false)
