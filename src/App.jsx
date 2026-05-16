@@ -11,13 +11,12 @@ const Login = lazy(() => import('./pages/Login'))
 const ForgotPassword = lazy(() => import('./pages/ForgotPassword'))
 const Unauthorized = lazy(() => import('./pages/Unauthorized'))
 const Landing = lazy(() => import('./pages/Landing'))
-const StudentDashboard = lazy(() => import('./pages/StudentDashboard'))
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'))
 const StudentsPage = lazy(() => import('./pages/admin/StudentsPage'))
 const ResultsPage = lazy(() => import('./pages/admin/ResultsPage'))
 const AttendancePage = lazy(() => import('./pages/admin/AttendancePage'))
 const TeacherDashboard = lazy(() => import('./pages/teacher/TeacherDashboard'))
-const NewStudentDashboard = lazy(() => import('./pages/student/StudentDashboard'))
+const StudentDashboard = lazy(() => import('./pages/student/StudentDashboard'))
 
 
 function PageSkeleton() {
@@ -44,7 +43,7 @@ export default function App() {
                 element={
                   <ProtectedRoute allowedRoles={['student']}>
                     <ErrorBoundary>
-                      <NewStudentDashboard />
+                      <StudentDashboard />
                     </ErrorBoundary>
                   </ProtectedRoute>
                 }

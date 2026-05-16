@@ -8,6 +8,7 @@ import Toast, { useToast } from '../../components/shared/Toast'
 import { supabase, isSupabaseConnected } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import useCountUp from '../../hooks/useCountUp'
+import { calculateGrade, calculateGPA, getLetterFromGPA } from '../../utils/gradeUtils'
 
 const GRADE_COLORS = {
   'A+': 'bg-green-700 text-white',
@@ -87,7 +88,7 @@ export default function StudentDashboard() {
       ])
     } else {
       const [studentRes, resultsRes, attendanceRes, noticesRes] = await Promise.all([
-        supabase.from('students').select('*').eq('student_id', studentId).single(),
+        supabase.from('students').select('*').eq('id', studentId).single(),
         supabase.from('results').select('*').eq('student_id', studentId),
         supabase.from('attendance').select('*').eq('student_id', studentId),
         supabase.from('notices').select('*').order('date', { ascending: false }).limit(5),
@@ -100,19 +101,7 @@ export default function StudentDashboard() {
     setLoading(false)
   }
 
-  const gpa = useMemo(() => {
-    if (!results.length) return 0
-    const totalPoints = results.reduce((sum, r) => {
-      const pct = (r.marks / r.total) * 100
-      if (pct >= 90) return sum + 4.0
-      if (pct >= 80) return sum + 4.0
-      if (pct >= 70) return sum + 3.0
-      if (pct >= 60) return sum + 2.0
-      if (pct >= 50) return sum + 1.0
-      return sum
-    }, 0)
-    return (totalPoints / results.length).toFixed(2)
-  }, [results])
+  const gpa = useMemo(() => calculateGPA(results), [results])
 
   const attendancePercent = useMemo(() => {
     const total = attendance.reduce((s, a) => s + a.total, 0)
@@ -120,25 +109,7 @@ export default function StudentDashboard() {
     return total > 0 ? Math.round((attended / total) * 100) : 0
   }, [attendance])
 
-  const getGrade = (marks, total) => {
-    const pct = (marks / total) * 100
-    if (pct >= 90) return 'A+'
-    if (pct >= 80) return 'A'
-    if (pct >= 70) return 'B'
-    if (pct >= 60) return 'C'
-    if (pct >= 50) return 'D'
-    return 'F'
-  }
-
-  const getLetterGrade = (gpaVal) => {
-    const g = parseFloat(gpaVal)
-    if (g >= 3.7) return 'A+'
-    if (g >= 3.3) return 'A'
-    if (g >= 2.7) return 'B'
-    if (g >= 2.0) return 'C'
-    if (g >= 1.0) return 'D'
-    return 'F'
-  }
+  const getGrade = (marks, total) => calculateGrade(marks, total).grade
 
   const groupedResults = useMemo(() => {
     const grouped = {}
@@ -152,7 +123,7 @@ export default function StudentDashboard() {
   const handleSaveProfile = async () => {
     try {
       if (isSupabaseConnected && studentData?.student_id) {
-        await supabase.from('students').update(profileForm).eq('student_id', studentData.student_id)
+        await supabase.from('students').update(profileForm).eq('id', studentData.student_id)
       }
       addToast('Profile updated successfully!', 'success')
       setStudentData({ ...studentData, ...profileForm })
@@ -204,7 +175,7 @@ export default function StudentDashboard() {
               <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
                 <p className="text-sm text-gray-500 mb-2">GPA</p>
                 <div className="flex items-center gap-4">
-                  <span className="text-4xl font-bold text-[#0f2040]">{getLetterGrade(gpa)}</span>
+                  <span className="text-4xl font-bold text-[#0f2040]">{getLetterFromGPA(gpa)}</span>
                   <span className="text-lg text-gray-500">({gpa})</span>
                 </div>
               </motion.div>
@@ -276,7 +247,7 @@ export default function StudentDashboard() {
               <div key={sem} className="mb-4">
                 <div className="flex items-center justify-between py-2 px-3 bg-gray-50 rounded-lg">
                   <span className="font-medium">Semester {sem}</span>
-                  <span className="text-sm text-gray-500">GPA: {getLetterGrade((semResults.reduce((s, r) => s + (r.marks/r.total)*4, 0) / semResults.length).toFixed(2))}</span>
+                  <span className="text-sm text-gray-500">GPA: {getLetterFromGPA((semResults.reduce((s, r) => s + (r.marks/r.total)*4, 0) / semResults.length).toFixed(2))}</span>
                 </div>
                 <table className="w-full text-sm mt-2">
                   <thead><tr className="text-left text-gray-500"><th className="py-2">Subject</th><th>Exam</th><th>Marks</th><th>Grade</th></tr></thead>

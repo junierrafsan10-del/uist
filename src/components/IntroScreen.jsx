@@ -127,9 +127,9 @@ export default function IntroScreen({ onComplete }) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
               >
-                <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '2rem', letterSpacing: '4px' }} className="text-white">The Math Mentor</h1>
+                <h1 style={{ fontFamily: "'Cormorant Garamond', serif", fontSize: '2rem', letterSpacing: '4px' }} className="text-white">UCEP Institute</h1>
                 <p className="mt-3 flex justify-center gap-4" style={{ fontFamily: "'DM Sans', sans-serif" }}>
-                  {['UNDERSTAND.', 'PRACTICE.', 'SUCCEED.'].map((w, i) => (
+                  {['BUILDING SKILLS', 'BUILDING FUTURES', 'DIPLOMA PROGRAMS'].map((w, i) => (
                     <motion.span key={w} className="inline-block text-xs" style={{ color: '#f59e0b', letterSpacing: '4px', fontSize: '0.75rem' }}
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}

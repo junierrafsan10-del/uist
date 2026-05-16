@@ -73,15 +73,15 @@ export function exportResultsPDF(results, title = 'Results Report') {
   doc.text(`Total Records: ${results.length} | Generated: ${new Date().toLocaleDateString()}`, 105, 48, { align: 'center' })
   autoTable(doc, {
     startY: 54,
-    head: [['Student', 'ID', 'Course', 'Exam', 'Marks', 'Total', '%', 'Grade']],
+    head: [['Student ID', 'Subject', 'Semester', 'Credits', 'Marks', 'Grade', 'Points']],
     body: results.map(r => {
-      const pct = r.marks && r.total ? ((r.marks/r.total)*100).toFixed(1) : '0'
-      return [r.student_name||'Unknown', r.student_id||r.student_id, r.course||'-', r.exam_type||'-', r.marks||0, r.total||100, pct+'%', r.grade||'-']
+      const pct = r.marks && r.credits ? ((r.marks / 100) * 100).toFixed(1) : '0'
+      return [r.student_id || '', r.subject || r.exam_type || '-', r.semester || '-', r.credits || '-', r.marks || 0, r.grade || '-', r.points || '-']
     }),
     headStyles: { fillColor: [15,32,64], textColor: 255, fontSize: 8, fontStyle: 'bold' },
     alternateRowStyles: { fillColor: [248,249,250] },
     bodyStyles: { fontSize: 8 },
-    columnStyles: { 7: { halign: 'center' } },
+    columnStyles: { 6: { halign: 'center' } },
   })
   doc.setFontSize(8)
   doc.setTextColor(150)
@@ -92,17 +92,16 @@ export function exportResultsPDF(results, title = 'Results Report') {
 export function exportResultsExcel(results) {
   const rows = results.map((r, i) => ({
     'No': i + 1,
-    'Student Name': r.student_name || '',
     'Student ID': r.student_id || '',
-    'Course': r.course || '',
-    'Exam Type': r.exam_type || '',
+    'Subject': r.subject || r.exam_type || '',
+    'Semester': r.semester || '',
+    'Credits': r.credits || '',
     'Marks': r.marks || 0,
-    'Total': r.total || 100,
-    'Percentage': r.marks && r.total ? ((r.marks/r.total)*100).toFixed(1)+'%' : '0%',
     'Grade': r.grade || '',
+    'Points': r.points || '',
   }))
   const ws = XLSX.utils.json_to_sheet(rows)
-  ws['!cols'] = [{wch:5},{wch:20},{wch:12},{wch:25},{wch:12},{wch:8},{wch:8},{wch:12},{wch:8}]
+  ws['!cols'] = [{wch:5},{wch:12},{wch:22},{wch:10},{wch:8},{wch:8},{wch:8},{wch:8}]
   const wb = XLSX.utils.book_new()
   XLSX.utils.book_append_sheet(wb, ws, 'Results')
   XLSX.writeFile(wb, `UIST_Results_${new Date().toISOString().split('T')[0]}.xlsx`)

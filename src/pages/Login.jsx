@@ -39,8 +39,27 @@ export default function Login() {
     }
 
     if (!isSupabaseConnected) {
-      setError('Supabase is not configured. Please set up environment variables.')
-      setShake(true)
+      const mockUsers = [
+        { email:'admin@uist.edu', password:'Admin@2025!', role:'admin', name:'Administrator' },
+        { email:'arif@uist.edu', password:'Student@2025!', role:'student', name:'Arif Hossain', ref_id:'S1001' },
+        { email:'fatima@uist.edu', password:'Student@2025!', role:'student', name:'Fatima Begum', ref_id:'S1002' },
+        { email:'teacher@uist.edu', password:'Teacher@2025!', role:'teacher', name:'Prof. Kamal Hossain' },
+      ]
+      const found = mockUsers.find(u => u.email === email && u.password === password)
+      if (!found) {
+        setError('Invalid email or password')
+        setLoading(false)
+        return
+      }
+      sessionStorage.setItem('authUser', JSON.stringify({
+        id: 'mock-' + found.role,
+        email: found.email,
+        profile: { role: found.role, full_name: found.name, ref_id: found.ref_id || null }
+      }))
+      if (found.role === 'admin') navigate('/admin-dashboard')
+      else if (found.role === 'teacher') navigate('/teacher-dashboard')
+      else navigate('/student-dashboard')
+      setLoading(false)
       return
     }
 

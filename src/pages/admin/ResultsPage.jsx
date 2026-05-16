@@ -5,6 +5,7 @@ import Modal from '../../components/shared/Modal'
 import Toast, { useToast } from '../../components/shared/Toast'
 import { supabase, isSupabaseConnected } from '../../lib/supabase'
 import { exportResultsPDF, exportResultsExcel } from '../../services/exportService'
+import { calculateGradeFromPct } from '../../utils/gradeUtils'
 
 const GRADE_COLORS = {
   'A+': 'bg-green-700 text-white',
@@ -13,15 +14,6 @@ const GRADE_COLORS = {
   C: 'bg-orange-500 text-white',
   D: 'bg-yellow-400 text-white',
   F: 'bg-red-500 text-white',
-}
-
-const calculateGrade = (percentage) => {
-  if (percentage >= 90) return 'A+'
-  if (percentage >= 80) return 'A'
-  if (percentage >= 70) return 'B'
-  if (percentage >= 60) return 'C'
-  if (percentage >= 50) return 'D'
-  return 'F'
 }
 
 export default function ResultsPage() {
@@ -51,7 +43,7 @@ export default function ResultsPage() {
   useEffect(() => {
     if (resultForm.marks_obtained && resultForm.total_marks) {
       const percentage = (parseFloat(resultForm.marks_obtained) / parseFloat(resultForm.total_marks)) * 100
-      setCalculatedGrade(calculateGrade(percentage))
+      setCalculatedGrade(calculateGradeFromPct(percentage).grade)
     } else {
       setCalculatedGrade('')
     }
@@ -74,14 +66,13 @@ export default function ResultsPage() {
         ])
         setCourses(['Civil Technology', 'Electrical Engineering', 'Computer Science', 'Mechanical Engineering'])
       } else {
-        const [resultsRes, studentsRes, coursesRes] = await Promise.all([
+        const [resultsRes, studentsRes] = await Promise.all([
           supabase.from('results').select('*'),
           supabase.from('students').select('*'),
-          supabase.from('courses').select('name').eq('is_active', true),
         ])
         setResults(resultsRes.data || [])
         setStudents(studentsRes.data || [])
-        setCourses(coursesRes.data?.map(c => c.name) || [])
+        setCourses(['Civil Technology', 'Mechanical Engineering', 'Electrical Engineering', 'Computer Science and Technology', 'Textile Engineering', 'Automobile Engineering'])
       }
     } catch (error) {
       addToast('Failed to fetch data', 'error')
@@ -106,7 +97,7 @@ export default function ResultsPage() {
     }
 
     const percentage = (parseFloat(resultForm.marks_obtained) / parseFloat(resultForm.total_marks)) * 100
-    const grade = calculateGrade(percentage)
+    const grade = calculateGradeFromPct(percentage).grade
     const student = students.find(s => s.student_id === resultForm.student_id)
 
     try {
@@ -215,7 +206,7 @@ export default function ResultsPage() {
                 <tbody className="divide-y divide-gray-50">
                   {filteredResults.map((result, i) => {
                     const percentage = result.marks && result.total ? ((result.marks / result.total) * 100).toFixed(1) : 0
-                    const grade = result.grade || calculateGrade(parseFloat(percentage))
+                    const grade = result.grade || calculateGradeFromPct(parseFloat(percentage)).grade
                     return (
                       <motion.tr
                         key={result.id || i}

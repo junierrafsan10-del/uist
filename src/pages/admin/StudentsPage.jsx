@@ -58,12 +58,11 @@ export default function StudentsPage() {
         ])
         setCourses(['Civil Technology', 'Electrical Engineering', 'Computer Science', 'Mechanical Engineering', 'Textile Engineering', 'Automobile Engineering'])
       } else {
-        const [studentsRes, coursesRes] = await Promise.all([
+        const [studentsRes] = await Promise.all([
           supabase.from('students').select('*'),
-          supabase.from('courses').select('name').eq('is_active', true),
         ])
         setStudents(studentsRes.data || [])
-        setCourses(coursesRes.data?.map(c => c.name) || [])
+        setCourses(['Civil Technology', 'Mechanical Engineering', 'Electrical Engineering', 'Computer Science and Technology', 'Textile Engineering', 'Automobile Engineering'])
       }
     } catch (error) {
       addToast('Failed to fetch data', 'error')
@@ -148,7 +147,7 @@ export default function StudentsPage() {
   const handleEditStudent = async () => {
     try {
       if (isSupabaseConnected) {
-        await supabase.from('students').update(studentForm).eq('student_id', studentForm.student_id)
+        await supabase.from('students').update(studentForm).eq('id', studentForm.student_id)
       }
       addToast('Student updated successfully!', 'success')
       setShowEditModal(false)
@@ -165,7 +164,7 @@ export default function StudentsPage() {
     }
     try {
       if (isSupabaseConnected) {
-        await supabase.from('students').delete().eq('student_id', selectedStudent.student_id)
+        await supabase.from('students').delete().eq('id', selectedStudent.student_id)
       }
       addToast('Student deleted!', 'success')
       setShowDeleteModal(false)

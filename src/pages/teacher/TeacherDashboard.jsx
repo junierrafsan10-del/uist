@@ -7,6 +7,7 @@ import Toast, { useToast } from '../../components/shared/Toast'
 import { supabase, isSupabaseConnected } from '../../lib/supabase'
 import { useAuth } from '../../contexts/AuthContext'
 import useCountUp from '../../hooks/useCountUp'
+import { calculateGrade } from '../../utils/gradeUtils'
 
 const GRADE_COLORS = {
   'A+': 'bg-green-700 text-white',
@@ -64,15 +65,14 @@ export default function TeacherDashboard() {
       ])
       setAttendanceData({ 'Civil Technology-2025-05-15': { 'ST-001': 'present', 'ST-002': 'present' } })
     } else {
-      const [teacherRes, studentsRes, coursesRes, noticesRes] = await Promise.all([
+      const [teacherRes, studentsRes, noticesRes] = await Promise.all([
         supabase.from('faculty').select('*').limit(1).single(),
         supabase.from('students').select('*'),
-        supabase.from('courses').select('*').eq('is_active', true),
         supabase.from('notices').select('*').order('created_at', { ascending: false }).limit(5),
       ])
       setTeacherData(teacherRes.data)
       setStudents(studentsRes.data || [])
-      setCourses(coursesRes.data?.map(c => c.name) || [])
+      setCourses(['Civil Technology', 'Mechanical Engineering', 'Electrical Engineering', 'Computer Science and Technology', 'Textile Engineering', 'Automobile Engineering'])
       setNotices(noticesRes.data || [])
     }
     setLoading(false)
@@ -114,15 +114,7 @@ export default function TeacherDashboard() {
     }
   }
 
-  const getGrade = (marks, total) => {
-    const pct = (marks / total) * 100
-    if (pct >= 90) return 'A+'
-    if (pct >= 80) return 'A'
-    if (pct >= 70) return 'B'
-    if (pct >= 60) return 'C'
-    if (pct >= 50) return 'D'
-    return 'F'
-  }
+  const getGrade = (marks, total) => calculateGrade(marks, total).grade
 
   const handleAddResult = async () => {
     if (!resultForm.student_id || !resultForm.marks) {
