@@ -5,16 +5,16 @@ import { useAuth } from '../contexts/AuthContext'
 import ucepLogo from '../assets/UCEP-logo.png'
 
 const adminNavItems = [
-  { key: 'dashboard', label: 'Dashboard', path: '/admin-dashboard', icon: '🏠' },
-  { key: 'students', label: 'Students', path: '/admin/students', icon: '👨‍🎓' },
-  { key: 'teachers', label: 'Teachers', path: '/admin-dashboard', icon: '👨‍🏫' },
-  { key: 'courses', label: 'Courses', path: '/admin-dashboard', icon: '📚' },
-  { key: 'notices', label: 'Notices', path: '/admin-dashboard', icon: '📋' },
-  { key: 'results', label: 'Results', path: '/admin/results', icon: '📊' },
-  { key: 'attendance', label: 'Attendance', path: '/admin/attendance', icon: '✅' },
-  { key: 'placements', label: 'Job Placement', path: '/admin-dashboard', icon: '💼' },
-  { key: 'documents', label: 'Documents', path: '/admin-dashboard', icon: '📁' },
-  { key: 'settings', label: 'Settings', path: '/admin-dashboard', icon: '⚙️' },
+  { key: 'dashboard', label: 'Dashboard', path: '/admin-dashboard', icon: '🏠', tab: 'dashboard' },
+  { key: 'students', label: 'Students', path: '/admin/students', icon: '👨‍🎓', tab: null },
+  { key: 'teachers', label: 'Teachers', path: '/admin-dashboard', icon: '👨‍🏫', tab: 'teachers' },
+  { key: 'courses', label: 'Courses', path: '/admin-dashboard', icon: '📚', tab: 'courses' },
+  { key: 'notices', label: 'Notices', path: '/admin-dashboard', icon: '📋', tab: 'notices' },
+  { key: 'results', label: 'Results', path: '/admin/results', icon: '📊', tab: null },
+  { key: 'attendance', label: 'Attendance', path: '/admin/attendance', icon: '✅', tab: null },
+  { key: 'placements', label: 'Job Placement', path: '/admin-dashboard', icon: '💼', tab: 'placements' },
+  { key: 'documents', label: 'Documents', path: '/admin-dashboard', icon: '📁', tab: 'documents' },
+  { key: 'settings', label: 'Settings', path: '/admin-dashboard', icon: '⚙️', tab: 'settings' },
 ]
 
 const studentNavItems = [
@@ -111,12 +111,25 @@ export default function DashboardLayout({ children, activeTab, setActiveTab, rol
 
         <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
           {navItems.map((item, i) => {
-            const isActive = currentTab === item.key
+            const isActive = item.tab
+              ? activeTab === item.tab
+              : currentPath === item.path || currentTab === item.key
             return (
               <motion.div key={item.key} initial={{ opacity: 0, x: -10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.03 }}>
                 <Link
                   to={item.path}
-                  onClick={() => { if (isMobile) setSidebarOpen(false) }}
+                  onClick={(e) => {
+                    if (item.tab && item.path === '/admin-dashboard') {
+                      e.preventDefault()
+                      if (setActiveTab) setActiveTab(item.tab)
+                      if (isMobile) setSidebarOpen(false)
+                      if (window.location.pathname !== '/admin-dashboard') {
+                        navigate('/admin-dashboard')
+                      }
+                    } else {
+                      if (isMobile) setSidebarOpen(false)
+                    }
+                  }}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all relative ${
                     isActive
                       ? 'bg-[#FFC107]/10 text-[#0f2040]'

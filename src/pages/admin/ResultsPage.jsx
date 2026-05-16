@@ -4,6 +4,7 @@ import DashboardLayout from '../../layouts/DashboardLayout'
 import Modal from '../../components/shared/Modal'
 import Toast, { useToast } from '../../components/shared/Toast'
 import { supabase, isSupabaseConnected } from '../../lib/supabase'
+import { exportResultsPDF, exportResultsExcel } from '../../services/exportService'
 
 const GRADE_COLORS = {
   'A+': 'bg-green-700 text-white',
@@ -131,34 +132,6 @@ export default function ResultsPage() {
     }
   }
 
-  const exportToPDF = () => {
-    addToast('Exporting PDF...', 'info')
-    setTimeout(() => {
-      const content = filteredResults.map(r => ({
-        'Student Name': r.student_name,
-        'Student ID': r.student_id,
-        'Course': r.course,
-        'Exam Type': r.exam_type,
-        'Marks': `${r.marks}/${r.total}`,
-        'Percentage': `${((r.marks / r.total) * 100).toFixed(1)}%`,
-        'Grade': r.grade,
-      }))
-      
-      let csv = 'Student Name,Student ID,Course,Exam Type,Marks,Percentage,Grade\n'
-      content.forEach(row => {
-        csv += `${row['Student Name']},${row['Student ID']},${row['Course']},${row['Exam Type']},${row['Marks']},${row['Percentage']},${row['Grade']}\n`
-      })
-      
-      const blob = new Blob([csv], { type: 'text/csv' })
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement('a')
-      a.href = url
-      a.download = 'results.pdf'
-      a.click()
-      addToast('Results exported!', 'success')
-    }, 1000)
-  }
-
   const semesters = [1, 2, 3, 4, 5, 6, 7, 8]
   const examTypes = ['midterm', 'final', 'assignment', 'quiz']
   const years = ['2025', '2024', '2023', '2022']
@@ -210,10 +183,16 @@ export default function ResultsPage() {
                 + Add Result
               </button>
               <button
-                onClick={exportToPDF}
+                onClick={() => exportResultsExcel(filteredResults)}
+                className="px-4 py-2.5 bg-green-500 text-white rounded-xl text-sm font-medium hover:bg-green-600"
+              >
+                📊 Excel
+              </button>
+              <button
+                onClick={() => exportResultsPDF(filteredResults)}
                 className="px-4 py-2.5 bg-red-500 text-white rounded-xl text-sm font-medium hover:bg-red-600"
               >
-                Export Results PDF
+                📄 PDF
               </button>
             </div>
           </div>

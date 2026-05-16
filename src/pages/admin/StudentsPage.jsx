@@ -4,6 +4,7 @@ import DashboardLayout from '../../layouts/DashboardLayout'
 import Modal from '../../components/shared/Modal'
 import Toast, { useToast } from '../../components/shared/Toast'
 import { supabase, isSupabaseConnected } from '../../lib/supabase'
+import { exportStudentsExcel, exportStudentsPDF } from '../../services/exportService'
 
 const ROWS_PER_PAGE = 20
 
@@ -176,21 +177,6 @@ export default function StudentsPage() {
     }
   }
 
-  const exportStudentsToExcel = () => {
-    const csv = [
-      ['Student ID', 'Name', 'Email', 'Phone', 'Course', 'Batch', 'Status'],
-      ...filteredStudents.map(s => [s.student_id, s.name, s.email, s.phone, s.course, s.batch, s.status])
-    ].map(row => row.join(',')).join('\n')
-    
-    const blob = new Blob([csv], { type: 'text/csv' })
-    const url = URL.createObjectURL(blob)
-    const a = document.createElement('a')
-    a.href = url
-    a.download = 'students.csv'
-    a.click()
-    addToast('Excel exported!', 'success')
-  }
-
   const openEdit = (student) => {
     setStudentForm(student)
     setShowEditModal(true)
@@ -256,10 +242,16 @@ export default function StudentsPage() {
                 + Add Student
               </button>
               <button
-                onClick={exportStudentsToExcel}
+                onClick={() => exportStudentsExcel(filteredStudents)}
                 className="px-4 py-2.5 bg-green-500 text-white rounded-xl text-sm font-medium hover:bg-green-600"
               >
-                Export Excel
+                📊 Excel
+              </button>
+              <button
+                onClick={() => exportStudentsPDF(filteredStudents)}
+                className="px-4 py-2.5 bg-red-500 text-white rounded-xl text-sm font-medium hover:bg-red-600"
+              >
+                📄 PDF
               </button>
             </div>
           </div>
