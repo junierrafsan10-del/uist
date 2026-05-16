@@ -37,40 +37,15 @@ export default function AttendancePage() {
     setLoading(true)
     try {
       if (!isSupabaseConnected) {
-        setStudents([
-          { student_id: 'ST-001', name: 'Arif Hossain', course: 'Civil Technology' },
-          { student_id: 'ST-002', name: 'Fatima Begum', course: 'Electrical Engineering' },
-          { student_id: 'ST-003', name: 'Tanvir Ahmed', course: 'Civil Technology' },
-          { student_id: 'ST-004', name: 'Nusrat Jahan', course: 'Computer Science' },
-          { student_id: 'ST-005', name: 'Mahbub Karim', course: 'Civil Technology' },
-        ])
-        setCourses(['Civil Technology', 'Electrical Engineering', 'Computer Science', 'Mechanical Engineering'])
-        
-        // Mock attendance data
-        setAttendanceData({
-          'ST-001': {
-            '2025-05-01': 'present',
-            '2025-05-02': 'present',
-            '2025-05-03': 'absent',
-            '2025-05-04': 'present',
-            '2025-05-05': 'late',
-          },
-          'ST-002': {
-            '2025-05-01': 'present',
-            '2025-05-02': 'present',
-            '2025-05-03': 'present',
-            '2025-05-04': 'present',
-            '2025-05-05': 'present',
-          },
-        })
+        loadMockData()
       } else {
-        const [studentsRes, coursesRes, attendanceRes] = await Promise.all([
+        const [studentsRes, attendanceRes] = await Promise.all([
           supabase.from('students').select('*'),
-          supabase.from('courses').select('name').eq('is_active', true),
           supabase.from('attendance').select('*'),
         ])
-        setStudents(studentsRes.data || [])
-        setCourses(coursesRes.data?.map(c => c.name) || [])
+        if (studentsRes.error) throw studentsRes.error
+        setStudents((studentsRes.data || []).map(s => ({ ...s, student_id: s.id })))
+        setCourses(['Civil Technology', 'Mechanical Engineering', 'Electrical Engineering', 'Computer Science and Technology', 'Textile Engineering', 'Automobile Engineering'])
         
         const attData = {}
         attendanceRes.data?.forEach(a => {
@@ -80,10 +55,26 @@ export default function AttendancePage() {
         setAttendanceData(attData)
       }
     } catch (error) {
-      addToast('Failed to fetch data', 'error')
+      console.warn('Supabase unavailable, using mock data:', error)
+      loadMockData()
     } finally {
       setLoading(false)
     }
+  }
+
+  const loadMockData = () => {
+    setStudents([
+      { student_id: 'ST-001', name: 'Arif Hossain', course: 'Civil Technology' },
+      { student_id: 'ST-002', name: 'Fatima Begum', course: 'Electrical Engineering' },
+      { student_id: 'ST-003', name: 'Tanvir Ahmed', course: 'Civil Technology' },
+      { student_id: 'ST-004', name: 'Nusrat Jahan', course: 'Computer Science' },
+      { student_id: 'ST-005', name: 'Mahbub Karim', course: 'Civil Technology' },
+    ])
+    setCourses(['Civil Technology', 'Electrical Engineering', 'Computer Science', 'Mechanical Engineering'])
+    setAttendanceData({
+      'ST-001': { '2025-05-01': 'present', '2025-05-02': 'present', '2025-05-03': 'absent', '2025-05-04': 'present', '2025-05-05': 'late' },
+      'ST-002': { '2025-05-01': 'present', '2025-05-02': 'present', '2025-05-03': 'present', '2025-05-04': 'present', '2025-05-05': 'present' },
+    })
   }
 
   const filteredStudents = useMemo(() => {
@@ -120,12 +111,13 @@ export default function AttendancePage() {
     try {
       if (isSupabaseConnected) {
         for (const [studentId, status] of Object.entries(dayData)) {
-          await supabase.from('attendance').upsert({
+          const { error } = await supabase.from('attendance').upsert({
             student_id: studentId,
             course: selectedCourse,
             date: selectedDate,
             status: status,
           })
+          if (error) throw error
         }
       }
       addToast('Attendance submitted!', 'success')

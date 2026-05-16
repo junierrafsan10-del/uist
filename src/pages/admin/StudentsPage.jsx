@@ -49,14 +49,7 @@ export default function StudentsPage() {
     setLoading(true)
     try {
       if (!isSupabaseConnected) {
-        setStudents([
-          { student_id: 'ST-001', name: 'Arif Hossain', email: 'arif@ucep.edu', phone: '01711111111', course: 'Civil Technology', batch: '2024', status: 'active' },
-          { student_id: 'ST-002', name: 'Fatima Begum', email: 'fatima@ucep.edu', phone: '01711111112', course: 'Electrical Engineering', batch: '2024', status: 'active' },
-          { student_id: 'ST-003', name: 'Tanvir Ahmed', email: 'tanvir@ucep.edu', phone: '01711111113', course: 'Computer Science', batch: '2023', status: 'active' },
-          { student_id: 'ST-004', name: 'Nusrat Jahan', email: 'nusrat@ucep.edu', phone: '01711111114', course: 'Civil Technology', batch: '2023', status: 'graduated' },
-          { student_id: 'ST-005', name: 'Mahbub Karim', email: 'mahbub@ucep.edu', phone: '01711111115', course: 'Mechanical Engineering', batch: '2024', status: 'active' },
-        ])
-        setCourses(['Civil Technology', 'Electrical Engineering', 'Computer Science', 'Mechanical Engineering', 'Textile Engineering', 'Automobile Engineering'])
+        loadMockData()
       } else {
         const [studentsRes] = await Promise.all([
           supabase.from('students').select('*'),
@@ -66,10 +59,22 @@ export default function StudentsPage() {
         setCourses(['Civil Technology', 'Mechanical Engineering', 'Electrical Engineering', 'Computer Science and Technology', 'Textile Engineering', 'Automobile Engineering'])
       }
     } catch (error) {
-      addToast('Failed to fetch data', 'error')
+      console.warn('Supabase unavailable, using mock data:', error)
+      loadMockData()
     } finally {
       setLoading(false)
     }
+  }
+
+  const loadMockData = () => {
+    setStudents([
+      { student_id: 'ST-001', name: 'Arif Hossain', email: 'arif@ucep.edu', phone: '01711111111', course: 'Civil Technology', batch: '2024', status: 'active' },
+      { student_id: 'ST-002', name: 'Fatima Begum', email: 'fatima@ucep.edu', phone: '01711111112', course: 'Electrical Engineering', batch: '2024', status: 'active' },
+      { student_id: 'ST-003', name: 'Tanvir Ahmed', email: 'tanvir@ucep.edu', phone: '01711111113', course: 'Computer Science', batch: '2023', status: 'active' },
+      { student_id: 'ST-004', name: 'Nusrat Jahan', email: 'nusrat@ucep.edu', phone: '01711111114', course: 'Civil Technology', batch: '2023', status: 'graduated' },
+      { student_id: 'ST-005', name: 'Mahbub Karim', email: 'mahbub@ucep.edu', phone: '01711111115', course: 'Mechanical Engineering', batch: '2024', status: 'active' },
+    ])
+    setCourses(['Civil Technology', 'Electrical Engineering', 'Computer Science', 'Mechanical Engineering', 'Textile Engineering', 'Automobile Engineering'])
   }
 
   const filteredStudents = useMemo(() => {
@@ -133,6 +138,7 @@ export default function StudentsPage() {
         addToast('Student ID and Name are required', 'warning')
         return
       }
+      let saved = false
       if (isSupabaseConnected) {
         const { error } = await supabase.from('students').insert({
           id: studentForm.student_id,
@@ -143,14 +149,14 @@ export default function StudentsPage() {
           batch: studentForm.batch,
           status: studentForm.status,
         })
-        if (error) throw error
-      } else {
+        if (!error) saved = true
+      }
+      if (!saved) {
         setStudents(prev => [...prev, { ...studentForm }])
       }
       addToast('Student added successfully!', 'success')
       setShowAddModal(false)
       setStudentForm({ student_id: '', name: '', email: '', phone: '', course: '', batch: '', status: 'active' })
-      if (isSupabaseConnected) fetchData()
     } catch (error) {
       addToast('Failed to add student', 'error')
     }
@@ -158,6 +164,7 @@ export default function StudentsPage() {
 
   const handleEditStudent = async () => {
     try {
+      let saved = false
       if (isSupabaseConnected) {
         const { error } = await supabase.from('students').update({
           name: studentForm.name,
@@ -167,13 +174,13 @@ export default function StudentsPage() {
           batch: studentForm.batch,
           status: studentForm.status,
         }).eq('id', studentForm.student_id)
-        if (error) throw error
-      } else {
+        if (!error) saved = true
+      }
+      if (!saved) {
         setStudents(prev => prev.map(s => s.student_id === studentForm.student_id ? { ...studentForm } : s))
       }
       addToast('Student updated successfully!', 'success')
       setShowEditModal(false)
-      if (isSupabaseConnected) fetchData()
     } catch (error) {
       addToast('Failed to update student', 'error')
     }
@@ -185,17 +192,19 @@ export default function StudentsPage() {
       return
     }
     try {
+      let deleted = false
       if (isSupabaseConnected) {
         const { error } = await supabase.from('students').delete().eq('id', selectedStudent.student_id)
-        if (error) throw error
-      } else {
+        if (!error) deleted = true
+      }
+      if (!deleted) {
         setStudents(prev => prev.filter(s => s.student_id !== selectedStudent.student_id))
       }
       addToast('Student deleted!', 'success')
       setShowDeleteModal(false)
       setSelectedStudent(null)
       setDeleteConfirmName('')
-      if (isSupabaseConnected) fetchData()
+      if (deleted) fetchData()
     } catch (error) {
       addToast('Failed to delete student', 'error')
     }

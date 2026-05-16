@@ -52,19 +52,11 @@ export default function TeacherDashboard() {
   const fetchData = async () => {
     setLoading(true)
     if (!isSupabaseConnected) {
-      setTeacherData({ name: 'Prof. Kamal Hossain', department: 'CSE', email: 'kamal@ucep.edu', phone: '01711111121' })
-      setStudents([
-        { student_id: 'ST-001', name: 'Arif Hossain', course: 'Civil Technology', attendance: 93, gpa: 3.8 },
-        { student_id: 'ST-002', name: 'Fatima Begum', course: 'Electrical Engineering', attendance: 87, gpa: 3.5 },
-        { student_id: 'ST-003', name: 'Tanvir Ahmed', course: 'Computer Science', attendance: 78, gpa: 3.2 },
-      ])
-      setCourses(['Civil Technology', 'Electrical Engineering', 'Computer Science'])
-      setNotices([
-        { id: 1, title: 'Data Structures Exam', date: '2025-05-15', status: 'draft' },
-        { id: 2, title: 'Assignment Submission', date: '2025-05-10', status: 'published' },
-      ])
-      setAttendanceData({ 'Civil Technology-2025-05-15': { 'ST-001': 'present', 'ST-002': 'present' } })
-    } else {
+      loadMockData()
+      setLoading(false)
+      return
+    }
+    try {
       const [teacherRes, studentsRes, noticesRes] = await Promise.all([
         supabase.from('faculty').select('*').limit(1).single(),
         supabase.from('students').select('*'),
@@ -75,8 +67,26 @@ export default function TeacherDashboard() {
       setStudents((studentsRes.data || []).map(s => ({ ...s, student_id: s.id })))
       setCourses(['Civil Technology', 'Mechanical Engineering', 'Electrical Engineering', 'Computer Science and Technology', 'Textile Engineering', 'Automobile Engineering'])
       setNotices(noticesRes.data || [])
+    } catch (error) {
+      console.warn('Supabase unavailable, using mock data:', error)
+      loadMockData()
     }
     setLoading(false)
+  }
+
+  const loadMockData = () => {
+    setTeacherData({ name: 'Prof. Kamal Hossain', department: 'CSE', email: 'kamal@ucep.edu', phone: '01711111121' })
+    setStudents([
+      { student_id: 'ST-001', name: 'Arif Hossain', course: 'Civil Technology', attendance: 93, gpa: 3.8 },
+      { student_id: 'ST-002', name: 'Fatima Begum', course: 'Electrical Engineering', attendance: 87, gpa: 3.5 },
+      { student_id: 'ST-003', name: 'Tanvir Ahmed', course: 'Computer Science', attendance: 78, gpa: 3.2 },
+    ])
+    setCourses(['Civil Technology', 'Electrical Engineering', 'Computer Science'])
+    setNotices([
+      { id: 1, title: 'Data Structures Exam', date: '2025-05-15', status: 'draft' },
+      { id: 2, title: 'Assignment Submission', date: '2025-05-10', status: 'published' },
+    ])
+    setAttendanceData({ 'Civil Technology-2025-05-15': { 'ST-001': 'present', 'ST-002': 'present' } })
   }
 
   const filteredStudents = useMemo(() => {

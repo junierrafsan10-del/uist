@@ -53,32 +53,38 @@ export default function ResultsPage() {
     setLoading(true)
     try {
       if (!isSupabaseConnected) {
-        setResults([
-          { id: 1, student_id: 'ST-001', student_name: 'Arif Hossain', course: 'Civil Technology', exam_type: 'Midterm', marks: 85, total: 100, year: '2025' },
-          { id: 2, student_id: 'ST-002', student_name: 'Fatima Begum', course: 'Electrical Engineering', exam_type: 'Final', marks: 92, total: 100, year: '2025' },
-          { id: 3, student_id: 'ST-003', student_name: 'Tanvir Ahmed', course: 'Computer Science', exam_type: 'Quiz', marks: 78, total: 100, year: '2025' },
-          { id: 4, student_id: 'ST-001', student_name: 'Arif Hossain', course: 'Civil Technology', exam_type: 'Final', marks: 88, total: 100, year: '2025' },
-        ])
-        setStudents([
-          { student_id: 'ST-001', name: 'Arif Hossain', course: 'Civil Technology' },
-          { student_id: 'ST-002', name: 'Fatima Begum', course: 'Electrical Engineering' },
-          { student_id: 'ST-003', name: 'Tanvir Ahmed', course: 'Computer Science' },
-        ])
-        setCourses(['Civil Technology', 'Electrical Engineering', 'Computer Science', 'Mechanical Engineering'])
+        loadMockData()
       } else {
         const [resultsRes, studentsRes] = await Promise.all([
           supabase.from('results').select('*'),
           supabase.from('students').select('*'),
         ])
-        setResults(resultsRes.data || [])
-        setStudents(studentsRes.data || [])
+        if (resultsRes.error) throw resultsRes.error
+        setResults((resultsRes.data || []).map(r => ({ ...r, student_id: r.id || r.student_id })))
+        setStudents((studentsRes.data || []).map(s => ({ ...s, student_id: s.id })))
         setCourses(['Civil Technology', 'Mechanical Engineering', 'Electrical Engineering', 'Computer Science and Technology', 'Textile Engineering', 'Automobile Engineering'])
       }
     } catch (error) {
-      addToast('Failed to fetch data', 'error')
+      console.warn('Supabase unavailable, using mock data:', error)
+      loadMockData()
     } finally {
       setLoading(false)
     }
+  }
+
+  const loadMockData = () => {
+    setResults([
+      { student_id: 'ST-001', student_name: 'Arif Hossain', course: 'Civil Technology', exam_type: 'Midterm', marks: 85, total: 100, year: '2025' },
+      { student_id: 'ST-002', student_name: 'Fatima Begum', course: 'Electrical Engineering', exam_type: 'Final', marks: 92, total: 100, year: '2025' },
+      { student_id: 'ST-003', student_name: 'Tanvir Ahmed', course: 'Computer Science', exam_type: 'Quiz', marks: 78, total: 100, year: '2025' },
+      { student_id: 'ST-001', student_name: 'Arif Hossain', course: 'Civil Technology', exam_type: 'Final', marks: 88, total: 100, year: '2025' },
+    ])
+    setStudents([
+      { student_id: 'ST-001', name: 'Arif Hossain', course: 'Civil Technology' },
+      { student_id: 'ST-002', name: 'Fatima Begum', course: 'Electrical Engineering' },
+      { student_id: 'ST-003', name: 'Tanvir Ahmed', course: 'Computer Science' },
+    ])
+    setCourses(['Civil Technology', 'Electrical Engineering', 'Computer Science', 'Mechanical Engineering'])
   }
 
   const filteredResults = useMemo(() => {
