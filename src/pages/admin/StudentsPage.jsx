@@ -61,7 +61,7 @@ export default function StudentsPage() {
         const [studentsRes] = await Promise.all([
           supabase.from('students').select('*'),
         ])
-        setStudents(studentsRes.data || [])
+        setStudents((studentsRes.data || []).map(s => ({ ...s, student_id: s.id })))
         setCourses(['Civil Technology', 'Mechanical Engineering', 'Electrical Engineering', 'Computer Science and Technology', 'Textile Engineering', 'Automobile Engineering'])
       }
     } catch (error) {

@@ -71,7 +71,7 @@ export default function TeacherDashboard() {
         supabase.from('notices').select('*').order('created_at', { ascending: false }).limit(5),
       ])
       setTeacherData(teacherRes.data)
-      setStudents(studentsRes.data || [])
+      setStudents((studentsRes.data || []).map(s => ({ ...s, student_id: s.id })))
       setCourses(['Civil Technology', 'Mechanical Engineering', 'Electrical Engineering', 'Computer Science and Technology', 'Textile Engineering', 'Automobile Engineering'])
       setNotices(noticesRes.data || [])
     }
@@ -253,7 +253,20 @@ export default function TeacherDashboard() {
                     })}
                   </tbody>
                 </table>
-                <button onClick={() => addToast('Attendance submitted!', 'success')} className="mt-4 px-6 py-2.5 bg-[#0f2040] text-white rounded-xl text-sm font-medium">Submit Attendance</button>
+                <button onClick={async () => {
+                  if (isSupabaseConnected) {
+                    try {
+                      const records = students.filter(s => s.course === selectedCourse).map(s => ({
+                        student_id: s.student_id,
+                        course: selectedCourse,
+                        date: selectedDate,
+                        status: attendanceData[`${selectedCourse}-${selectedDate}`]?.[s.student_id] || 'present',
+                      }))
+                      await supabase.from('attendance').upsert(records, { onConflict: 'student_id,course,date' })
+                    } catch { addToast('Failed to submit attendance', 'error'); return }
+                  }
+                  addToast('Attendance submitted!', 'success')
+                }} className="mt-4 px-6 py-2.5 bg-[#0f2040] text-white rounded-xl text-sm font-medium">Submit Attendance</button>
               </div>
             )}
           </div>
