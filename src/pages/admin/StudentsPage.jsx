@@ -341,6 +341,34 @@ export default function StudentsPage() {
                       </td>
                     </motion.tr>
                   ))}
+                  {paginatedStudents.length === 0 && !loading && (
+                    <tr>
+                      <td colSpan={7} className="px-4 py-16 text-center">
+                        <div className="flex flex-col items-center gap-3">
+                          <div className="text-5xl">
+                            {isSupabaseConnected ? '📭' : '⚠️'}
+                          </div>
+                          <p className="font-medium text-gray-700">
+                            {isSupabaseConnected 
+                              ? 'No students found' 
+                              : 'Database not connected'}
+                          </p>
+                          <p className="text-sm text-gray-400 max-w-xs">
+                            {isSupabaseConnected 
+                              ? 'Add your first student using the button above'
+                              : 'Environment variables are missing on this deployment. Check Vercel settings.'}
+                          </p>
+                          {!isSupabaseConnected && (
+                            <div className="mt-2 px-4 py-3 bg-yellow-50 border border-yellow-200 rounded-xl text-left text-sm text-yellow-800 max-w-sm">
+                              <p className="font-medium mb-1">Fix: Add to Vercel Environment Variables:</p>
+                              <p className="font-mono text-xs">VITE_SUPABASE_URL</p>
+                              <p className="font-mono text-xs">VITE_SUPABASE_ANON_KEY</p>
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
