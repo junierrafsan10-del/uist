@@ -133,12 +133,22 @@ export default function StudentsPage() {
         return
       }
       if (isSupabaseConnected) {
-        await supabase.from('students').insert(studentForm)
+        await supabase.from('students').insert({
+          id: studentForm.student_id,
+          name: studentForm.name,
+          email: studentForm.email,
+          phone: studentForm.phone,
+          course: studentForm.course,
+          batch: studentForm.batch,
+          status: studentForm.status,
+        })
+      } else {
+        setStudents(prev => [...prev, { ...studentForm }])
       }
       addToast('Student added successfully!', 'success')
       setShowAddModal(false)
       setStudentForm({ student_id: '', name: '', email: '', phone: '', course: '', batch: '', status: 'active' })
-      fetchData()
+      if (isSupabaseConnected) fetchData()
     } catch (error) {
       addToast('Failed to add student', 'error')
     }
@@ -147,11 +157,20 @@ export default function StudentsPage() {
   const handleEditStudent = async () => {
     try {
       if (isSupabaseConnected) {
-        await supabase.from('students').update(studentForm).eq('id', studentForm.student_id)
+        await supabase.from('students').update({
+          name: studentForm.name,
+          email: studentForm.email,
+          phone: studentForm.phone,
+          course: studentForm.course,
+          batch: studentForm.batch,
+          status: studentForm.status,
+        }).eq('id', studentForm.student_id)
+      } else {
+        setStudents(prev => prev.map(s => s.student_id === studentForm.student_id ? { ...studentForm } : s))
       }
       addToast('Student updated successfully!', 'success')
       setShowEditModal(false)
-      fetchData()
+      if (isSupabaseConnected) fetchData()
     } catch (error) {
       addToast('Failed to update student', 'error')
     }
@@ -165,12 +184,14 @@ export default function StudentsPage() {
     try {
       if (isSupabaseConnected) {
         await supabase.from('students').delete().eq('id', selectedStudent.student_id)
+      } else {
+        setStudents(prev => prev.filter(s => s.student_id !== selectedStudent.student_id))
       }
       addToast('Student deleted!', 'success')
       setShowDeleteModal(false)
       setSelectedStudent(null)
       setDeleteConfirmName('')
-      fetchData()
+      if (isSupabaseConnected) fetchData()
     } catch (error) {
       addToast('Failed to delete student', 'error')
     }
