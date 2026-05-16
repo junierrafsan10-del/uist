@@ -70,7 +70,7 @@ export default function AchievementsSection() {
         <h2 className="text-3xl sm:text-4xl font-bold text-white text-center mb-16 tracking-wider">
           ACHIEVEMENTS
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 lg:gap-8">
           {stats.map((stat, i) => (
             <StatColumn key={stat.label} stat={stat} index={i} started={started} />
           ))}

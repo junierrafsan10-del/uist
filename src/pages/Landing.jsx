@@ -87,7 +87,7 @@ function Navbar() {
     <>
       <header className="fixed top-0 left-0 right-0 z-50">
         {/* Top bar */}
-        <div className="bg-ucep-teal text-white text-sm">
+        <div className="hidden sm:flex bg-ucep-teal text-white text-sm">
           <div className="max-w-7xl mx-auto px-4 flex items-center justify-center h-10">
             <span className="text-xs sm:text-sm font-medium">
               Welcome to UCEP Institute of Science and Technology
@@ -238,7 +238,7 @@ function CoursesSection() {
             <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-20 h-1 bg-ucep-orange rounded-full" />
           </h2>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {courses.map((course, i) => (
             <CourseCard key={course.dept} course={course} index={i} />
           ))}

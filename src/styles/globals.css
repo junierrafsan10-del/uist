@@ -271,3 +271,28 @@ body {
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255,255,255,0.2);
 }
+
+/* Mobile touch targets */
+@media (max-width: 768px) {
+  button { min-height: 40px; }
+  select, input[type="text"], input[type="email"],
+  input[type="number"], input[type="date"],
+  input[type="password"], textarea {
+    font-size: 16px !important;
+    min-height: 40px;
+  }
+}
+
+/* Prevent horizontal overflow */
+body { overflow-x: hidden; }
+
+/* Better scrollbars on mobile */
+@media (max-width: 768px) {
+  ::-webkit-scrollbar { width: 3px; height: 3px; }
+  ::-webkit-scrollbar-thumb { background: #F57C00; border-radius: 3px; }
+}
+
+/* Student and Teacher dashboard mobile grids */
+@media (max-width: 640px) {
+  .grid { gap: 0.75rem !important; }
+}

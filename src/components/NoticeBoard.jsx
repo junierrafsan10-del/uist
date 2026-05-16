@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { supabase, isSupabaseConnected } from '../lib/supabase'
 
 function useOnScreen(threshold = 0.15) {
   const ref = useRef(null)
@@ -16,49 +17,15 @@ function useOnScreen(threshold = 0.15) {
   return [ref, visible]
 }
 
-// TODO: Replace with useNotices() hook from Supabase
-const notices = [
-  {
-    id: 1,
-    category: 'urgent',
-    label: 'URGENT',
-    color: '#E53935',
-    title: 'Diploma Engineering Final Exam Schedule 2025',
-    date: 'May 10, 2025',
-    content: 'The final examination schedule for all diploma engineering technologies has been published. Students are advised to check the notice board for details.',
-  },
-  {
-    id: 2,
-    category: 'admission',
-    label: 'ADMISSION',
-    color: '#00ACC1',
-    title: 'Admission Open for January 2026 Batch',
-    date: 'May 5, 2025',
-    content: 'Applications are now being accepted for the January 2026 academic session. Visit the admission office for details.',
-  },
-  {
-    id: 3,
-    category: 'exam',
-    label: 'EXAM',
-    color: '#F57C00',
-    title: 'Result Published - 6th Semester Civil Technology',
-    date: 'April 28, 2025',
-    content: 'The results for the 6th semester final examinations of Civil Technology have been published and are available online.',
-  },
-  {
-    id: 4,
-    category: 'general',
-    label: 'GENERAL',
-    color: '#43A047',
-    title: 'Industrial Visit to BGMEA for Textile Students',
-    date: 'April 20, 2025',
-    content: 'An industrial visit to BGMEA has been arranged for textile engineering students. Interested students should register by April 25.',
-  },
-]
-
 function NoticeCard({ notice, index, visible }) {
   const [ref, show] = useOnScreen()
   const isVisible = visible && show
+
+  const catColors = { urgent: '#E53935', admission: '#00ACC1', exam: '#F57C00', general: '#43A047' }
+  const catLabels = { urgent: 'URGENT', admission: 'ADMISSION', exam: 'EXAM', general: 'GENERAL' }
+  const color = notice.color || catColors[notice.category] || '#F57C00'
+  const label = notice.label || catLabels[notice.category] || 'NOTICE'
+  const content = notice.content || notice.body || ''
 
   return (
     <div
@@ -68,20 +35,20 @@ function NoticeCard({ notice, index, visible }) {
         opacity: isVisible ? 1 : 0,
         transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
         transitionDelay: `${index * 150}ms`,
-        borderLeft: `4px solid ${notice.color}`,
+        borderLeft: `4px solid ${color}`,
       }}
     >
       {/* Category badge */}
       <span
         className="absolute top-3 right-3 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider"
-        style={{ background: notice.color }}
+        style={{ background: color }}
       >
-        {notice.label}
+        {label}
       </span>
       <h4 className="font-bold text-gray-900 text-sm pr-24 mb-1">{notice.title}</h4>
       <p className="text-gray-400 text-xs mb-2">{notice.date}</p>
       <p className="text-gray-500 text-sm leading-relaxed">
-        {notice.content.length > 80 ? notice.content.slice(0, 80) + '...' : notice.content}
+        {content.length > 80 ? content.slice(0, 80) + '...' : content}
       </p>
     </div>
   )
@@ -89,6 +56,22 @@ function NoticeCard({ notice, index, visible }) {
 
 export default function NoticeBoard() {
   const [ref, visible] = useOnScreen()
+  const [notices, setNotices] = useState([
+    { id:1, title:'Semester Final Exam Schedule 2025', category:'exam', date:'2025-05-10', body:'End semester examinations will begin from June 10, 2025.' },
+    { id:2, title:'Admission Open for 2025 Batch', category:'admission', date:'2025-05-05', body:'Applications are now open for January 2026 intake.' },
+    { id:3, title:'Result Published - Semester 5', category:'general', date:'2025-04-28', body:'Results for 6th Semester Civil Technology have been published.' },
+    { id:4, title:'Industrial Visit - BGMEA', category:'general', date:'2025-04-20', body:'Industrial visit for Textile Engineering students.' },
+  ])
+
+  useEffect(() => {
+    if (!isSupabaseConnected) return
+    supabase
+      .from('notices')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(4)
+      .then(({ data }) => { if (data && data.length > 0) setNotices(data) })
+  }, [])
 
   return (
     <section ref={ref} className="py-20" style={{ background: '#F5F5F5' }}>

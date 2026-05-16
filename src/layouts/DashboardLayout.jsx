@@ -97,7 +97,7 @@ export default function DashboardLayout({ children, activeTab, setActiveTab, rol
           width: 260
         }}
         transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-        className={`fixed lg:static inset-y-0 left-0 z-50 bg-white border-r border-gray-200 flex flex-col shadow-xl ${isMobile ? 'shadow-2xl' : ''}`}
+        className="fixed lg:static inset-y-0 left-0 z-50 bg-white border-r border-gray-200 flex flex-col shadow-xl"
       >
         <div className="p-5 border-b border-gray-100">
           <div className="flex items-center gap-3">

@@ -235,7 +235,7 @@ export default function AttendancePage() {
                   </div>
 
                   <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                    <table className="w-full text-sm">
+                    <table className="w-full text-sm min-w-[400px]">
                       <thead>
                         <tr className="bg-gray-50 text-left">
                           <th className="px-4 py-3 font-medium">Student ID</th>

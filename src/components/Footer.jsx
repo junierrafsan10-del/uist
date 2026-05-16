@@ -16,7 +16,7 @@ export default function Footer() {
   return (
     <footer style={{ background: '#2E6B73' }}>
       <div className="max-w-7xl mx-auto px-4 py-16">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Column 1 — Important Links */}
           <FooterColumn className="-translate-x-8">
             <h3 className="text-white font-bold text-lg mb-5" style={{ borderLeft: '3px solid #F57C00', paddingLeft: '12px' }}>

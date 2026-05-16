@@ -190,7 +190,7 @@ export default function ResultsPage() {
 
           <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="overflow-x-auto">
-              <table className="w-full text-sm">
+              <table className="w-full text-sm min-w-[700px]">
                 <thead>
                   <tr className="bg-gray-50 text-left">
                     <th className="px-4 py-3 font-medium">Student Name</th>
