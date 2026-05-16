@@ -67,38 +67,48 @@ export default function StudentDashboard() {
     const studentName = stored?.profile?.name || 'Student'
 
     if (!isSupabaseConnected) {
-      setStudentData({ name: studentName, student_id: studentId, course: 'Civil Technology', batch: '2024', year: '3rd', status: 'active', email: 'student@ucep.edu', phone: '01711111111', address: 'Dhaka', enrolled_date: '2022-09-01' })
-      setResults([
-        { id: 1, semester: 5, subject: 'Data Structures', exam_type: 'Midterm', marks: 85, total: 100 },
-        { id: 2, semester: 5, subject: 'Algorithms', exam_type: 'Final', marks: 78, total: 100 },
-        { id: 3, semester: 5, subject: 'Database Systems', exam_type: 'Quiz', marks: 90, total: 100 },
-        { id: 4, semester: 4, subject: 'OOP', exam_type: 'Final', marks: 88, total: 100 },
-        { id: 5, semester: 4, subject: 'Operating Systems', exam_type: 'Midterm', marks: 75, total: 100 },
-      ])
-      setAttendance([
-        { id: 1, subject: 'Data Structures', total: 30, attended: 28 },
-        { id: 2, subject: 'Algorithms', total: 28, attended: 25 },
-        { id: 3, subject: 'Database Systems', total: 32, attended: 30 },
-        { id: 4, subject: 'OOP', total: 25, attended: 22 },
-      ])
-      setNotices([
-        { id: 1, title: 'Semester Final Exam Schedule', category: 'Academic', date: '2025-05-10' },
-        { id: 2, title: 'Tech Fest 2025', category: 'Event', date: '2025-05-08' },
-        { id: 3, title: 'Library Extended Hours', category: 'Notice', date: '2025-05-05' },
-      ])
+      loadMockData()
     } else {
-      const [studentRes, resultsRes, attendanceRes, noticesRes] = await Promise.all([
-        supabase.from('students').select('*').eq('id', studentId).single(),
-        supabase.from('results').select('*').eq('student_id', studentId),
-        supabase.from('attendance').select('*').eq('student_id', studentId),
-        supabase.from('notices').select('*').order('date', { ascending: false }).limit(5),
-      ])
-      setStudentData(studentRes.data || { name: studentName, student_id: studentId, course: 'Civil Technology', batch: '2024' })
-      setResults(resultsRes.data || [])
-      setAttendance(attendanceRes.data || [])
-      setNotices(noticesRes.data || [])
+      try {
+        const [studentRes, resultsRes, attendanceRes, noticesRes] = await Promise.all([
+          supabase.from('students').select('*').eq('id', studentId).single(),
+          supabase.from('results').select('*').eq('student_id', studentId),
+          supabase.from('attendance').select('*').eq('student_id', studentId),
+          supabase.from('notices').select('*').order('date', { ascending: false }).limit(5),
+        ])
+        if (studentRes.error) throw studentRes.error
+        setStudentData(studentRes.data || { name: studentName, student_id: studentId, course: 'Civil Technology', batch: '2024' })
+        setResults(resultsRes.data || [])
+        setAttendance(attendanceRes.data || [])
+        setNotices(noticesRes.data || [])
+      } catch (error) {
+        console.warn('Supabase unavailable, using mock data:', error)
+        loadMockData()
+      }
     }
     setLoading(false)
+  }
+
+  const loadMockData = () => {
+    setStudentData({ name: studentName, student_id: studentId, course: 'Civil Technology', batch: '2024', year: '3rd', status: 'active', email: 'student@ucep.edu', phone: '01711111111', address: 'Dhaka', enrolled_date: '2022-09-01' })
+    setResults([
+      { id: 1, semester: 5, subject: 'Data Structures', exam_type: 'Midterm', marks: 85, total: 100 },
+      { id: 2, semester: 5, subject: 'Algorithms', exam_type: 'Final', marks: 78, total: 100 },
+      { id: 3, semester: 5, subject: 'Database Systems', exam_type: 'Quiz', marks: 90, total: 100 },
+      { id: 4, semester: 4, subject: 'OOP', exam_type: 'Final', marks: 88, total: 100 },
+      { id: 5, semester: 4, subject: 'Operating Systems', exam_type: 'Midterm', marks: 75, total: 100 },
+    ])
+    setAttendance([
+      { id: 1, subject: 'Data Structures', total: 30, attended: 28 },
+      { id: 2, subject: 'Algorithms', total: 28, attended: 25 },
+      { id: 3, subject: 'Database Systems', total: 32, attended: 30 },
+      { id: 4, subject: 'OOP', total: 25, attended: 22 },
+    ])
+    setNotices([
+      { id: 1, title: 'Semester Final Exam Schedule', category: 'Academic', date: '2025-05-10' },
+      { id: 2, title: 'Tech Fest 2025', category: 'Event', date: '2025-05-08' },
+      { id: 3, title: 'Library Extended Hours', category: 'Notice', date: '2025-05-05' },
+    ])
   }
 
   const gpa = useMemo(() => calculateGPA(results), [results])
